@@ -3,7 +3,7 @@ from django.contrib import messages
 from django.db.models import Q
 from .models import Category, Product
 from .forms import ProductForm
-from auth.models import Customer
+from custom_auth.models import Customer
 
 
 # Create your views here.

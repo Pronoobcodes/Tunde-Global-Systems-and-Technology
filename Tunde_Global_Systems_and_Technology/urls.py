@@ -23,7 +23,7 @@ from . import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('store.urls')),
-    path('auth/', include('auth.urls')),
+    path('custom_auth/', include('custom_auth.urls')),
     # path('cart/', include('cart.urls')),
 ]
 
