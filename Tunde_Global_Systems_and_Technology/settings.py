@@ -39,7 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'store',
     'custom_auth',
-    # 'cart',
+    'cart',
 ]
 
 AUTH_USER_MODEL = 'custom_auth.Customer'

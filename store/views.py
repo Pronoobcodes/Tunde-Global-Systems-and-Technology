@@ -145,8 +145,3 @@ def category_products(request, category_id):
     category = get_object_or_404(Category, id=category_id)
     products = Product.objects.filter(category=category).order_by('id')
     return render(request, 'store/category_products.html', {'category': category, 'products': products})
-
-def category_summary(request):
-    categories = Category.objects.all()
-    category_counts = {category: Product.objects.filter(category=category).count() for category in categories}
-    return render(request, 'store/category_summary.html', {'category_counts': category_counts})
