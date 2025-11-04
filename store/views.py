@@ -78,19 +78,59 @@ def delete_product(request, pk):
 
 
 def home(request):
-    q = request.GET.get('q', '')
     products = Product.objects.all().order_by('date_added')
-
-    if q:
-        if q.isdigit():
-            products = Product.objects.filter(price__lte=float(q)).order_by('date_added')
-        else:
-            products = Product.objects.filter(
-                Q(name__icontains=q) | Q(description__icontains=q) | Q(category__name__icontains=q)
-            ).order_by('date_added')
-
     categories = Category.objects.all()
     return render(request, 'store/home.html', {'products': products, 'categories': categories})
+
+
+def all_products(request):
+    search_term = request.GET.get('searched', '')
+    sale_filter = request.GET.get('sale')
+    sort_order = request.GET.get('sort')
+    
+    # Start with all products
+    products = Product.objects.all()
+
+    # Apply search if provided
+    if search_term:
+        products = products.filter(
+            Q(name__icontains=search_term) |
+            Q(description__icontains=search_term) |
+            Q(category__name__icontains=search_term)
+        )
+
+    # Apply sale filter if requested
+    if sale_filter == 'true':
+        products = products.filter(is_sale=True)
+
+    # Apply sorting
+    if sort_order:
+        if sort_order == 'low-high':
+            products = products.order_by('price')
+        elif sort_order == 'high-low':
+            products = products.order_by('-price')
+        elif sort_order == 'name-az':
+            products = products.order_by('name')
+        elif sort_order == 'name-za':
+            products = products.order_by('-name')
+    else:
+        # Default sorting by newest
+        products = products.order_by('-date_added')
+
+    context = {
+        'searched': products,
+        'search_term': search_term,
+        'sale_filter': sale_filter,
+        'sort_order': sort_order,
+        'categories': Category.objects.all(),
+    }
+    
+    return render(request, 'store/all_products.html', context)
+
+
+def sales(request):
+    sale_products = Product.objects.filter(is_sale=True)
+    return render(request, 'store/sales.html', {'products':sale_products})
 
 
 def about(request):
