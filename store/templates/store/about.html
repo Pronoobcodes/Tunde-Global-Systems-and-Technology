@@ -1,0 +1,61 @@
+{% extends "store/main.html" %}
+{% load static %}
+{% block content %}
+
+<!-- About header -->
+<header class="bg-dark py-5 mb-4">
+    <div class="container px-4 px-lg-5">
+        <div class="text-center text-white">
+            <h1 class="display-5 fw-bold">About Tunde Global Systems &amp; Technology</h1>
+            <p class="lead text-white-50">Quality, affordable technology solutions — sales, repairs and installations.</p>
+        </div>
+    </div>
+</header>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-7">
+                <h2 class="h4 mb-3">Who we are</h2>
+                <p>At Tunde Global Systems &amp; Technology we specialise in selling and repairing laptops and desktops, installing CCTV systems, and providing a wide range of computer accessories and peripherals. We combine expert technical service with friendly support to make technology work for you.</p>
+
+                <h3 class="h5 mt-4">Our services</h3>
+                <ul class="list-unstyled">
+                    <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> Laptop &amp; desktop sales and repairs</li>
+                    <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> CCTV installation and maintenance</li>
+                    <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> Computer accessories &amp; gadget sales</li>
+                    <li class="mb-2"><i class="bi bi-check2-circle text-success me-2"></i> On-site and workshop repairs</li>
+                </ul>
+
+                <h3 class="h5 mt-4">Our mission</h3>
+                <p>To deliver reliable, affordable technology solutions that help our customers stay productive and secure. We value transparency, fast turnaround and building long-term relationships with every client.</p>
+            </div>
+
+            <div class="col-lg-5">
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Contact &amp; Location</h5>
+                        <p class="mb-1"><i class="bi bi-geo-alt-fill me-2 text-primary"></i><strong>Address</strong></p>
+                        <p class="small text-muted">8 Purple Street, Computer Village, Ikeja, Lagos, Nigeria</p>
+
+                        <p class="mb-1"><i class="bi bi-telephone-fill me-2 text-primary"></i><strong>Phone</strong></p>
+                        <p class="small"><a href="tel:+2348127484707">+234 812 748 4707</a></p>
+
+                        <p class="mb-1"><i class="bi bi-envelope-fill me-2 text-primary"></i><strong>Email</strong></p>
+                        <p class="small"><a href="mailto:tundeglobalsystem@gmail.com">tundeglobalsystem@gmail.com</a></p>
+
+                        <div class="d-grid mt-3">
+                            <a class="btn btn-primary" target="_blank" href="https://www.google.com/maps/search/?api=1&query=8+Purple+Street+Computer+Village+Ikeja">Open in Google Maps</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-3 text-center">
+                    <img src="{% static 'assets/favicon.ico' %}" class="img-fluid rounded" alt="Tunde Global" style="max-width:120px;"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}
