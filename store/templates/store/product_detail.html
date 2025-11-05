@@ -40,7 +40,7 @@
                             <div class="row justify-content-center">
                                 <div class="col-md-2">Quantity:</div>
                                 <div class="col-md-2">
-                                    <select class="form-select form-select-sm" id="qty-cart">
+                                    <select class="form-select form-select-sm product-qty" id="qty-cart">
                                         <option value="1">1</option>
                                         <option value="2">2</option>
                                         <option value="3">3</option>
@@ -50,7 +50,9 @@
                                 </div>
                             </div>
                             <a class="btn btn-secondary" href="{% url 'home' %}">Back</a>
-                            <button class="btn btn-secondary add-cart-btn" data-id="{{ product.id }}" type="button">Add to Cart</button>
+                            <button class="btn btn-primary add-cart-btn" data-id="{{ product.id }}" type="button">
+                                <i class="bi bi-cart-plus"></i> Add to Cart
+                            </button>
                             </center>
                         </div>
                     </div>
@@ -61,6 +63,68 @@
         <br></br>
 
 
+         <script>
+        $(document).ready(function() {
+            $('.add-cart-btn').on('click', function(e) {
+                e.preventDefault();
+                
+                let btn = $(this);
+                let qty = $('#qty-cart').val();
+                
+                console.log('Adding to cart:', {
+                    product_id: btn.data('id'),
+                    product_qty: qty
+                });
+
+                // Disable button while processing
+                btn.prop('disabled', true);
+                btn.html('<span class="spinner-border spinner-border-sm"></span> Adding...');
+
+                $.ajax({
+                    type: 'POST',
+                    url: '{% url "cart_add" %}',
+                    data: {
+                        product_id: btn.data('id'),
+                        product_qty: qty,
+                        csrfmiddlewaretoken: '{{ csrf_token }}',
+                        action: 'post'
+                    },
+                    success: function(json) {
+                        console.log('Success:', json);
+                        if (json.error) {
+                            showToast(json.error, 'danger');
+                        } else {
+                            // Update cart quantity
+                            const badge = document.getElementById("cart-count");
+                            if (badge) {
+                                badge.textContent = json.qty;
+                            }
+                            showToast(json.message || 'Item added to cart successfully!');
+                        }
+                    },
+                    error: function(xhr, errmsg, err) {
+                        console.error('Error:', xhr.responseJSON || xhr.responseText);
+                        let errorMsg = 'Error adding item to cart';
+                        try {
+                            if (xhr.responseJSON && xhr.responseJSON.error) {
+                                errorMsg = xhr.responseJSON.error;
+                            } else if (xhr.responseText) {
+                                errorMsg = xhr.responseText;
+                            }
+                        } catch (e) {
+                            console.error('Error parsing error response:', e);
+                        }
+                        showToast(errorMsg, 'danger');
+                    },
+                    complete: function() {
+                        // Re-enable button
+                        btn.prop('disabled', false);
+                        btn.html('<i class="bi bi-cart-plus"></i> Add to Cart');
+                    }
+                });
+            });
+        });
+    </script>
     
 
 {% endblock content %}

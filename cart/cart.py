@@ -5,27 +5,48 @@ class Cart:
     def __init__(self, request):
         self.session = request.session
         self.request = request
-        cart = self.session.get('session_key')  
-
-        
-        if 'session_key' not in self.session:
-            cart = self.session['session_key'] = {}
-
-        self.cart = cart
+        try:
+            # Get existing cart or create new one
+            self.cart = self.session.get('session_key', {})
+            if not isinstance(self.cart, dict):
+                print(f"Warning: Invalid cart type in session: {type(self.cart)}")
+                self.cart = {}
+            self.session['session_key'] = self.cart
+        except Exception as e:
+            print(f"Error initializing cart: {str(e)}")
+            self.cart = {}
+            self.session['session_key'] = self.cart
 
     def add(self, product, quantity):
+        if not product or not hasattr(product, 'id'):
+            raise ValueError("Invalid product")
+
+        if not isinstance(quantity, (int, str)) or int(quantity) <= 0:
+            raise ValueError("Invalid quantity")
+
         product_id = str(product.id)
-        product_qty = str(quantity)
+        product_qty = int(quantity)
+        print(f"Adding to cart - product_id: {product_id}, qty: {product_qty}")
 
-        if product_id not in self.cart:
-            self.cart[product_id] = int(product_qty)
+        # Update quantity if product exists, otherwise add it
+        if product_id in self.cart:
+            current_qty = self.cart[product_id]
+            print(f"Current quantity: {current_qty}")
+            self.cart[product_id] = min(5, self.cart[product_id] + product_qty)  # Limit to 5 items
+        else:
+            self.cart[product_id] = min(5, product_qty)  # Limit to 5 items
 
+        print(f"New quantity: {self.cart[product_id]}")
         self.session.modified = True
 
         if self.request.user.is_authenticated:
-            user = Customer.objects.filter(user__id=self.request.user.id)
-            cartt = str(self.cart).replace("\'", "\"")
-            user.update(user_cart=str(cartt))
+            try:
+                user = Customer.objects.filter(user__id=self.request.user.id)
+                if user.exists():
+                    cartt = str(self.cart).replace("\'", "\"")
+                    user.update(user_cart=str(cartt))
+            except Exception as e:
+                print(f"Error updating user cart: {str(e)}")
 
     def db_add(self, product, quantity):
         product_id = str(product.id)
