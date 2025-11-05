@@ -1,95 +1,297 @@
 {% extends "store/main.html" %}
-{% load static %}
-{% load cart_tags %}
 {% block content %}
-
-<div class="container py-5">
-    <h2 class="mb-4">Shopping Cart</h2>
-
+<!-- Page Title -->
+<header class="bg-dark py-4">
+            <div class="container px-4 px-lg-1 my-1">
+                <div class="text-center text-white">
+                    <h1 class="display-4 fw-bolder">Shopping Cart</h1>
+                    <p class="lead fw-normal text-white-50 mb-0">Review Products...</p>
+                </div>
+            </div>
+        </header>
+<br/>
+<div class="container pb-5">
     {% if cart_products %}
-        <div class="row">
-            <!-- Cart Items -->
-            <div class="col-lg-8">
-                <div class="card shadow-sm mb-4">
-                    <div class="card-body">
-                        {% for product in cart_products %}
-                            <div class="row mb-4 align-items-center" data-cart-row="{{ product.id }}">
-                                
-                                <!-- Product Details -->
-                                <div class="col-md-5">
-                                    <h5 class="mb-2">{{ product.name }}</h5>
-                                    {% if product.is_sale %}
-                                        <div class="text-muted">
-                                            <span class="text-decoration-line-through me-2">₦{{ product.price }}</span>
-                                            <span class="text-danger">₦{{ product.sale_price }}</span>
-                                        </div>
-                                    {% else %}
-                                        <div class="text-muted">₦{{ product.price }}</div>
-                                    {% endif %}
-                                </div>
+    <div class="row g-4">
+        <!-- Cart Items -->
+        <div class="col-lg-8">
+            {% for product in cart_products %}
 
-                                <!-- Quantity -->
-                                <div class="col-md-2">
-                                    <select class="form-select form-select-sm qty-input" 
-                                            data-product="{{ product.id }}"
-                                            aria-label="Quantity">
-                                        {% for i in "12345" %}
-                                            <option value="{{ forloop.counter }}" 
-                                                {% if quantities|get_item:product.id == forloop.counter %}selected{% endif %}>
-                                                {{ forloop.counter }}
-                                            </option>
+            <div class="card shadow-sm mb-3" id="product-{{ product.id }}">
+                <div class="card-body">
+                    <div class="row align-items-center">
+                        <!-- Product Image -->
+                        <div class="col-md-3">
+                            <img src="{{ product.image.url }}" class="img-fluid rounded" alt="{{ product.name }}" style="max-height: 120px; object-fit: cover;">
+                        </div>
+                        
+                        <!-- Product Details -->
+                        <div class="col-md-5">
+                            <h5 class="mb-1">{{ product.name }}</h5>
+                            <p class="text-muted small mb-2">{{ product.description|truncatewords:15 }}</p>
+                            
+                            {% if product.is_sale %}
+                            <div class="d-flex align-items-center">
+                                <span class="badge bg-danger me-2">SALE</span>
+                                <span class="text-decoration-line-through text-muted me-2">₦{{ product.price }}</span>
+                                <span class="fw-bold text-danger h5 mb-0">₦{{ product.sale_price }}</span>
+                            </div>
+                            {% else %}
+                            <span class="fw-bold h5 mb-0">₦{{ product.price }}</span>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Quantity & Actions -->
+                        <div class="col-md-4">
+                            <div class="row g-2 align-items-center justify-content-end">
+                                <div class="col-auto">
+                                    <select class="form-select form-select-sm" id="select{{ product.id }}" style="width: 70px;">
+                                        {% for key, value in quantities.items %}
+                                            {% if key == product.id|slugify %}
+                                                <option selected>{{ value }}</option>
+                                            {% endif %}
                                         {% endfor %}
+                                        <option value="1">1</option>
+                                        <option value="2">2</option>
+                                        <option value="3">3</option>
+                                        <option value="4">4</option>
+                                        <option value="5">5</option>
                                     </select>
                                 </div>
-
-                                <!-- Subtotal & Remove -->
-                                <div class="col-md-2 text-end">
-                                    <button class="btn btn-sm btn-outline-danger delete-cart-item" 
-                                            data-product="{{ product.id }}">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
+                                <div class="col-auto">
+                                    <div class="btn-group">
+                                        <button class="btn btn-sm btn-outline-primary update-cart" 
+                                                data-index="{{ product.id }}" 
+                                                type="button"
+                                                onclick="updateCart(this)">
+                                            <i class="bi bi-arrow-clockwise"></i>
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger delete-product" 
+                                                data-index="{{ product.id }}" 
+                                                type="button"
+                                                onclick="deleteProduct(this)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                            {% if not forloop.last %}<hr>{% endif %}
-                        {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>
+            {% endfor %}
+        </div>
 
-            <!-- Order Summary -->
-            <div class="col-lg-4">
-                <div class="card shadow-sm">
-                    <div class="card-header bg-light py-3">
-                        <h5 class="mb-0">Order Summary</h5>
+        <!-- Order Summary -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white py-3">
+                    <h5 class="mb-0 fw-bold">Order Summary</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <h6 class="text-muted mb-2">Subtotal</h6>
+                        <ul class="list-group mb-2">
+                            {% for item in line_items %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <div class="fw-semibold">{{ item.product.name }}</div>
+                                    <small class="text-muted">{{ item.qty }} × ₦{{ item.unit_price }}</small>
+                                </div>
+                                <span class="fw-bold">₦{{ item.line_total }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
                     </div>
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between mb-3">
-                            <span>Subtotal</span>
-                            <span>₦{{ totals }}</span>
-                        </div>
-                        <hr>
-                        <div class="d-flex justify-content-between mb-4">
-                            <strong>Total</strong>
-                            <strong>₦{{ totals }}</strong>
-                        </div>
-                        <button class="btn btn-primary w-100">Proceed to Checkout</button>
-                        <a href="" class="btn btn-Danger w-100">Clear Cart</a>
+                    <hr>
+                    <div class="d-flex justify-content-between mb-4">
+                        <span class="fw-bold h5 mb-0">Total</span>
+                        <span class="fw-bold h5 mb-0 text-primary">₦{{ totals }}</span>
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button class="btn btn-primary" type="button" onclick="proceedToCheckout()">
+                            Proceed to Checkout
+                        </button>
+                        <button class="btn btn-outline-danger" type="button" onclick="clearCart()">
+                            <i class="bi bi-trash me-2"></i>Clear Cart
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     {% else %}
-        <div class="text-center py-5">
-            <div class="display-6 text-muted mb-4">
-                <i class="bi bi-cart-x"></i>
-            </div>
-            <h3>Your cart is empty</h3>
-            <p class="text-muted mb-4">Looks like you haven't added anything to your cart yet.</p>
-            <a href="{% url 'all_products' %}" class="btn btn-primary">
-                Continue Shopping
-            </a>
+    <!-- Empty Cart -->
+    <div class="text-center py-5">
+        <div class="display-1 text-muted mb-4">
+            <i class="bi bi-cart-x"></i>
         </div>
+        <h3 class="fw-bold mb-2">Your cart is empty</h3>
+        <p class="text-muted mb-4">Browse our products and find something you like!</p>
+        <a href="{% url 'all_products' %}" class="btn btn-primary">
+            <i class="bi bi-shop me-2"></i>Continue Shopping
+        </a>
+    </div>
     {% endif %}
 </div>
+
+<!-- Alert Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="alertToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Helper functions
+    function showAlert(message, type = 'success') {
+        const toast = document.getElementById('alertToast');
+        toast.className = `toast align-items-center text-white border-0 bg-${type}`;
+        toast.querySelector('.toast-body').textContent = message;
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+    }
+
+    function showLoadingState(button) {
+        const originalContent = button.innerHTML;
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Loading...';
+        return originalContent;
+    }
+
+    function restoreButton(button, content) {
+        button.disabled = false;
+        button.innerHTML = content;
+    }
+
+    function updateCartBadge(qty) {
+        const badge = document.getElementById('cart-count');
+        if (badge) badge.textContent = qty;
+    }
+
+
+    // Cart operations
+    async function updateCart(button) {
+        const originalContent = showLoadingState(button);
+        const productID = button.dataset.index;
+        const newQty = document.getElementById('select' + productID).value;
+
+        try {
+            const response = await fetch('{% url "cart_update" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: new URLSearchParams({
+                    'product_id': productID,
+                    'product_qty': newQty,
+                    'action': 'post'
+                })
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            
+            showAlert('Cart updated successfully!', 'success');
+            updateCartBadge(data.qty);
+            
+            // Update total if provided
+            if (data.total !== undefined) {
+                document.getElementById('cart-total').textContent = `₦${data.total}`;
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert('Failed to update cart', 'danger');
+        } finally {
+            restoreButton(button, originalContent);
+        }
+    }
+
+    async function deleteProduct(button) {
+        if (!confirm('Are you sure you want to remove this item?')) return;
+
+        const originalContent = showLoadingState(button);
+        const productID = button.dataset.index;
+        const productCard = document.getElementById('product-' + productID);
+
+        try {
+            const response = await fetch('{% url "cart_delete" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: new URLSearchParams({
+                    'product_id': productID,
+                    'action': 'post'
+                })
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+            const data = await response.json();
+            
+            // Fade out and remove the product card
+            productCard.style.transition = 'opacity 0.3s ease';
+            productCard.style.opacity = '0';
+            setTimeout(() => productCard.remove(), 300);
+            
+            showAlert('Product removed successfully!', 'success');
+            updateCartBadge(data.qty);
+            
+            // Update total if provided
+            if (data.total !== undefined) {
+                document.getElementById('cart-total').textContent = `₦${data.total}`;
+            }
+            
+            // Refresh if cart is empty
+            if (data.qty === 0) {
+                setTimeout(() => location.reload(), 500);
+            }
+
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert('Failed to remove item', 'danger');
+            productCard.style.opacity = '1';
+        } finally {
+            restoreButton(button, originalContent);
+        }
+    }
+
+    async function clearCart() {
+        if (!confirm('Are you sure you want to clear your cart?')) return;
+
+        try {
+            const response = await fetch('{% url "cart_clear" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: new URLSearchParams({
+                    'action': 'post'
+                })
+            });
+
+            if (!response.ok) throw new Error('Network response was not ok');
+            showAlert('Cart cleared successfully!', 'success');
+            setTimeout(() => location.reload(), 500);
+
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert('Failed to clear cart', 'danger');
+        }
+    }
+
+    function proceedToCheckout() {
+        // Add your checkout logic here
+        alert('Checkout functionality coming soon!');
+    }
+</script>
 
 {% endblock content %}

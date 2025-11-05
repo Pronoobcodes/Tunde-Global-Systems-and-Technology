@@ -13,18 +13,15 @@ def register(request):
     if request.method == 'POST':
         form = CustomerRegistrationForm(request.POST)
         if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password1')
-            user = authenticate(request, username=username, password=password)
-            if user is not None:
-                Customer.objects.create(user=user)
-                login(request, user)
-                return redirect('update_user') 
-            else:
-                messages.error(request, 'Invalid credentials. Please try again.')
+            user = form.save(commit=False)
+            if not getattr(user, 'user_cart', None):
+                user.user_cart = '{}'
+            user.save()
+            login(request, user)
+            messages.success(request, 'Registration successful. Please complete your profile.')
+            return redirect('update_user')
         for error in list(form.errors.values()):
-            messages.error(request, error)
+            messages.error(request, ', '.join([str(e) for e in error]))
     return render(request, 'custom_auth/register.html', {'form': form})
 
 
@@ -39,7 +36,7 @@ def change_password(request):
                 return redirect('home') 
             else:
                 for error in list(form.errors.values()):
-                    messages.error(request, error)
+                    messages.error(request, ', '.join([str(e) for e in error]))
         else:
             form = ChangePasswordForm(user=request.user)
         return render(request, 'custom_auth/change_password.html', {'form': form})
@@ -54,7 +51,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            user_profile = Customer.objects.get(user__id=request.user.id)
+            user_profile = Customer.objects.get(id=request.user.id)
             saved_cart = user_profile.user_cart
 
             if saved_cart:

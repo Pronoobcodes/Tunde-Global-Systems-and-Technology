@@ -2,129 +2,166 @@
 {% load static %}
 {% block content %}
 
-        <div class="container">
-            <br></br>
-            <br></br>
-            <div class="card mb-3" style="max-width: 890px;">
-                <div class="row g-0">
-                    <div class="col-md-4">
-                        {% if product.image %}
-                            <img src="{{ product.image.url }}" class="img-fluid rounded-start" alt="{{ product.name }}">
-                        {% else %}
-                            <img src="{% static 'assets/favicon.ico' %}" class="img-fluid rounded-start" alt="{{ product.name }}">
-                        {% endif %}
-                    </div>
-            
-                    <div class="col-md-8">
-                        <div class="card-body">
-                            <center>
-                            <h5 class="card-title">{{ product.name }}</h5>
-                            <p class="card-text">{{ product.description }}</p>
+<!-- Page Header -->
+<div class="bg-light py-4 mb-4">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item active" aria-current="page">{{ product.name }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
 
-                            {% if product.is_sale %}
-                                <div class="d-flex justify-content-center small text-warning mb-2">
-                                    <div class="bi-star-fill"></div>
-                                    &nbsp; &nbsp; Sale! &nbsp; &nbsp;
-                                    <div class="bi-star-fill"></div>
-                                </div>
-                                <!-- Product price -->
-                                <div class="mb-3 text-center">
-                                    <span class="text-muted text-decoration-line-through me-2">₦{{ product.price }}</span>
-                                    <span class="fw-bold">₦{{ product.sale_price }}</span>
-                                </div>
-                            {% else %}
-                                <div class="mb-3 text-center">
-                                    <span class="fw-bold">₦{{ product.price }}</span>
-                                </div>
-                            {% endif %}
-                            <div class="row justify-content-center">
-                                <div class="col-md-2">Quantity:</div>
-                                <div class="col-md-2">
-                                    <select class="form-select form-select-sm product-qty" id="qty-cart">
-                                        <option value="1">1</option>
-                                        <option value="2">2</option>
-                                        <option value="3">3</option>
-                                        <option value="4">4</option>
-                                        <option value="5">5</option>
-                                    </select>
-                                </div>
+<div class="container pb-5">
+    <div class="row g-4">
+        <!-- Product Image -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm rounded-3 overflow-hidden">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}" 
+                         style="max-height: 500px; object-fit: cover;">
+                {% else %}
+                    <img src="{% static 'assets/favicon.ico' %}" class="card-img-top" alt="{{ product.name }}">
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Product Details -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <!-- Product Title -->
+                    <h2 class="fw-bold mb-3">{{ product.name }}</h2>
+
+                    <!-- Price -->
+                    {% if product.is_sale %}
+                        <div class="mb-3">
+                            <span class="badge bg-danger mb-2">SALE</span>
+                            <div>
+                                <span class="text-muted text-decoration-line-through me-2 h5">₦{{ product.price }}</span>
+                                <span class="text-danger fw-bold h4">₦{{ product.sale_price }}</span>
                             </div>
-                            <a class="btn btn-secondary" href="{% url 'home' %}">Back</a>
-                            <button class="btn btn-primary add-cart-btn" data-id="{{ product.id }}" type="button">
-                                <i class="bi bi-cart-plus"></i> Add to Cart
-                            </button>
-                            </center>
+                        </div>
+                    {% else %}
+                        <div class="mb-3">
+                            <span class="fw-bold h4">₦{{ product.price }}</span>
+                        </div>
+                    {% endif %}
+
+                    <!-- Description -->
+                    <div class="mb-4">
+                        <h5 class="text-muted mb-2">Description</h5>
+                        <p class="mb-0">{{ product.description }}</p>
+                    </div>
+
+                    <hr class="my-4">
+
+                    <!-- Add to Cart Form -->
+                    <div class="mb-4">
+                        <label for="qty-cart" class="form-label fw-bold mb-2">Quantity</label>
+                        <div class="row g-2">
+                            <div class="col-sm-4">
+                                <select class="form-select" id="qty-cart">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                </select>
+                            </div>
+                            <div class="col-sm-8">
+                                <button class="btn btn-primary w-100 add-cart-btn" 
+                                        data-id="{{ product.id }}" 
+                                        type="button">
+                                    <i class="bi bi-cart-plus me-2"></i>Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Additional Info -->
+                    <div class="small">
+                        <div class="mb-2">
+                            <i class="bi bi-check-circle-fill text-success me-2"></i>
+                            <span>In Stock</span>
+                        </div>
+                        <div class="mb-2">
+                            <i class="bi bi-truck text-primary me-2"></i>
+                            <span>Delivery Fees Depends on Location</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <br></br>
-        <br></br>
+    </div>
+</div>
 
+<!-- Alert Toast -->
+<div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+    <div id="alertToast" class="toast align-items-center text-white border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+            <div class="toast-body"></div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+    </div>
+</div>
 
-         <script>
-        $(document).ready(function() {
-            $('.add-cart-btn').on('click', function(e) {
-                e.preventDefault();
-                
-                let btn = $(this);
-                let qty = $('#qty-cart').val();
-                
-                console.log('Adding to cart:', {
-                    product_id: btn.data('id'),
-                    product_qty: qty
-                });
+<script>
+    // Helper function to show toast alerts
+    function showAlert(message, type = 'success') {
+        const toast = document.getElementById('alertToast');
+        toast.className = `toast align-items-center text-white border-0 bg-${type}`;
+        toast.querySelector('.toast-body').textContent = message;
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+    }
 
-                // Disable button while processing
-                btn.prop('disabled', true);
-                btn.html('<span class="spinner-border spinner-border-sm"></span> Adding...');
-
-                $.ajax({
-                    type: 'POST',
-                    url: '{% url "cart_add" %}',
-                    data: {
-                        product_id: btn.data('id'),
-                        product_qty: qty,
-                        csrfmiddlewaretoken: '{{ csrf_token }}',
-                        action: 'post'
-                    },
-                    success: function(json) {
-                        console.log('Success:', json);
-                        if (json.error) {
-                            showToast(json.error, 'danger');
-                        } else {
-                            // Update cart quantity
-                            const badge = document.getElementById("cart-count");
-                            if (badge) {
-                                badge.textContent = json.qty;
-                            }
-                            showToast(json.message || 'Item added to cart successfully!');
-                        }
-                    },
-                    error: function(xhr, errmsg, err) {
-                        console.error('Error:', xhr.responseJSON || xhr.responseText);
-                        let errorMsg = 'Error adding item to cart';
-                        try {
-                            if (xhr.responseJSON && xhr.responseJSON.error) {
-                                errorMsg = xhr.responseJSON.error;
-                            } else if (xhr.responseText) {
-                                errorMsg = xhr.responseText;
-                            }
-                        } catch (e) {
-                            console.error('Error parsing error response:', e);
-                        }
-                        showToast(errorMsg, 'danger');
-                    },
-                    complete: function() {
-                        // Re-enable button
-                        btn.prop('disabled', false);
-                        btn.html('<i class="bi bi-cart-plus"></i> Add to Cart');
-                    }
-                });
+    // Add to cart functionality
+    document.querySelector('.add-cart-btn').addEventListener('click', async function(e) {
+        e.preventDefault();
+        
+        const button = this;
+        const originalContent = button.innerHTML;
+        
+        // Show loading state
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Adding...';
+        
+        try {
+            const response = await fetch('{% url "cart_add" %}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: new URLSearchParams({
+                    product_id: button.dataset.id,
+                    product_qty: document.getElementById('qty-cart').value,
+                    action: 'post'
+                })
             });
-        });
-    </script>
-    
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            
+            // Update cart badge
+            const cartBadge = document.getElementById('cart-count');
+            if (cartBadge) cartBadge.textContent = data.qty;
+            
+            
+        } catch (error) {
+            console.error('Error:', error);
+            showAlert('Failed to add to cart. Please try again.', 'danger');
+        } finally {
+            // Restore button state
+            button.disabled = false;
+            button.innerHTML = originalContent;
+        }
+    });
+</script>
 
 {% endblock content %}
