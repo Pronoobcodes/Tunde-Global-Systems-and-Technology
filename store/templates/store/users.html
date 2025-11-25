@@ -1,0 +1,49 @@
+{% extends "store/main.html" %}
+{% load static %}
+{% block content %}
+
+<header class="bg-dark py-5 mb-4">
+    <div class="container px-4 px-lg-5">
+        <div class="text-center text-white">
+            <h1 class="display-5 fw-bold">Customers</h1>
+            <p class="lead text-white-50">Registered customers and available contact information.</p>
+        </div>
+    </div>
+</header>
+
+<section class="py-5">
+    <div class="container">
+        <div class="card">
+            <div class="card-body">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Username</th>
+                            <th>Full name</th>
+                            <th>Phone</th>
+                            <th>Email</th>
+                            <th>Address</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in customers %}
+                        <tr>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.full_name }}</td>
+                            <td>{{ user.phone }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.address }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="6">No customers found.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock content %}

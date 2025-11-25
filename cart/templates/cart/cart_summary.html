@@ -289,8 +289,63 @@
     }
 
     function proceedToCheckout() {
-        // Add your checkout logic here
-        alert('Checkout functionality coming soon!');
+        // Build order details and redirect to WhatsApp with a prefilled message.
+        try {
+            // Collect items from server-side rendered data
+            const items = [
+                {% for item in line_items %}
+                {
+                    name: "{{ item.product.name|escapejs }}",
+                    qty: {{ item.qty }},
+                    unit_price: "{{ item.unit_price }}",
+                    line_total: "{{ item.line_total }}"
+                }{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ];
+
+            if (!items || items.length === 0) {
+                showAlert('Your cart is empty.', 'warning');
+                return;
+            }
+
+            // Get user info (if authenticated) or prompt
+            let customerName = '';
+            let customerAddress = '';
+            const userAuthenticated = {% if request.user.is_authenticated %}true{% else %}false{% endif %};
+
+            if (userAuthenticated) {
+                customerName = "{{ request.user.full_name|default:request.user.username|escapejs }}";
+                customerAddress = "{{ request.user.address|default:''|escapejs }}";
+            } else {
+                customerName = prompt('Please enter your full name to proceed to checkout:');
+                if (!customerName) { showAlert('Name is required to proceed.', 'warning'); return; }
+                customerAddress = prompt('Please enter your delivery address:');
+                if (!customerAddress) { showAlert('Address is required to proceed.', 'warning'); return; }
+            }
+
+            // Compose order lines
+            let orderLines = items.map(i => `${i.qty} x ${i.name} (₦${i.unit_price}) = ₦${i.line_total}`).join('\n');
+
+            // Build message template
+            const total = `₦{{ totals }}`;
+            let message = `Hello, I would like to place an order from Tunde Global Systems and Technology.%0A` +
+                          `Name: ${customerName}%0A` +
+                          `Address: ${customerAddress}%0A%0A` +
+                          `Order details:%0A${encodeURIComponent(orderLines)}%0A%0A` +
+                          `Total: ${total}%0A` +
+                          `Please contact me to confirm availability and delivery.`;
+
+            // Merchant WhatsApp number (use international format without '+').
+            const merchantPhone = '2348127484707';
+
+            // Create WhatsApp url and open in new tab
+            const waUrl = `https://wa.me/${merchantPhone}?text=${message}`;
+            window.open(waUrl, '_blank');
+
+        } catch (err) {
+            console.error('Checkout error', err);
+            showAlert('Unable to prepare WhatsApp order. Try again.', 'danger');
+        }
     }
 </script>
 

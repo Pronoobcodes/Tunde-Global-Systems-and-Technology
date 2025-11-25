@@ -1,6 +1,6 @@
  <nav class="navbar navbar-expand-lg navbar-light bg-light">
             <div class="container px-4 px-lg-5">
-                <a class="navbar-brand" href="{% url "home" %}">Start Bootstrap</a>
+                <a class="navbar-brand" href="{% url 'home' %}">Tunde Global</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button>
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
@@ -8,6 +8,9 @@
                         {% if request.user.is_authenticated %}
                             <li class="nav-item"><a class="nav-link" href="{% url "update_user" %}">Profile</a></li>
                             <li class="nav-item"><a class="nav-link" href="{% url "logout" %}">Logout</a></li>
+                            {% if request.user.is_staff %}
+                                <li class="nav-item"><a class="nav-link" href="{% url "admin_view" %}">Admin</a></li>
+                            {% endif %}
                         {% else %}
                             <li class="nav-item"><a class="nav-link" href="{% url "login" %}">Login</a></li>
                             <li class="nav-item"><a class="nav-link" href="{% url "register" %}">Register</a></li>
@@ -23,10 +26,10 @@
                         </li>
                     </ul>
                     <form class="d-flex" action="{% url 'cart_summary' %}">
-                        <button class="btn btn-outline-dark" type="submit">
-                            <i class="bi-cart-fill me-1"></i>
-                            Cart
-                            <span id="cart-count" class="badge bg-dark text-white ms-1 rounded-pill">{{ request.session.session_key|length|default:0 }}</span>
+                        <button class="btn btn-outline-dark d-flex align-items-center" type="submit" aria-label="View cart">
+                            <i class="bi-cart-fill me-2"></i>
+                            <span class="me-2">Cart</span>
+                            <span id="cart-count" class="badge bg-dark text-white ms-1 rounded-pill">{{ cart|length }}</span>
                         </button>
                     </form>
                 </div>

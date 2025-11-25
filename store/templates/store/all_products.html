@@ -3,11 +3,11 @@
 {% block content %}
 
 <!-- Header -->
-<header class="bg-dark py-5 mb-4">
+<header class="py-5 site-hero mb-4">
     <div class="container px-4 px-lg-5">
-        <div class="text-center text-white">
+        <div class="text-center">
             <h1 class="display-5 fw-bold">Filter Search</h1>
-            <p class="lead text-white-50">Find your perfect product</p>
+            <p class="lead text-muted-strong">Find your perfect product</p>
         </div>
     </div>
 </header>
@@ -150,20 +150,6 @@
     </div>
 </section>
 
-<style>
-.product-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-.product-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
-}
-.product-card .card-img-top {
-    transition: transform 0.2s ease;
-}
-.product-card:hover .card-img-top {
-    transform: scale(1.05);
-}
-</style>
+<!-- product hover & image effects moved to custom.css -->
 
 {% endblock content %}

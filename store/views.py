@@ -38,7 +38,10 @@ def add_product(request):
 
             return render(request, 'store/product_edit_add.html', {'products': products, 'product_form': form})
 
-    return redirect('admin_view')
+    # If GET, show the add-product page with a blank form
+    products = Product.objects.all().order_by('id')
+    form = ProductForm()
+    return render(request, 'store/product_edit_add.html', {'products': products, 'product_form': form})
 
 
 def edit_product(request, pk):
@@ -59,7 +62,8 @@ def edit_product(request, pk):
     else:
         form = ProductForm(instance=product)
 
-    return render(request, 'store/product_edit_add.html', {'form': form, 'product': product})
+    products = Product.objects.all().order_by('id')
+    return render(request, 'store/product_edit_add.html', {'form': form, 'product': product, 'products': products})
 
 
 def delete_product(request, pk):
@@ -140,6 +144,15 @@ def about(request):
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk)
     return render(request, 'store/product_detail.html', {'product': product})
+
+
+def users_view(request):
+    """Admin-only view: list customers with available info."""
+    if not request.user.is_superuser:
+        messages.error(request, "You do not have permission to access this page.")
+        return redirect('home')
+    customers = Customer.objects.all().order_by('id')
+    return render(request, 'store/users.html', {'customers': customers})
 
 def category_products(request, category_id):
     category = get_object_or_404(Category, id=category_id)
