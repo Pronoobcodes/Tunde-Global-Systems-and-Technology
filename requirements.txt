@@ -1,0 +1,7 @@
+Django==5.2.5
+Pillow==10.1.0
+whitenoise==6.4.0
+
+# Optional/dev packages you may need:
+# django-debug-toolbar
+# ipython
