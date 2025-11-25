@@ -34,7 +34,6 @@ When a user clicks "Proceed to Checkout" on the cart page, the site builds a mes
 
 This message is opened in WhatsApp using the merchant number `+234 812 748 4707`.
 
-If you'd like a different merchant phone, update the number in `cart/templates/cart/cart_summary.html` (variable `merchantPhone`).
 
 ## Next steps
 - Add a logo asset and polish navbar
@@ -42,10 +41,7 @@ If you'd like a different merchant phone, update the number in `cart/templates/c
 - Improve UX for guests (collect name/address during checkout form instead of JS prompts)
 
 ---
-Generated changes:
-- Added `static/css/custom.css` (visual improvements)
-- Updated several store templates to use refreshed styles
-- Implemented WhatsApp checkout redirect in `cart_summary.html`
+
 # Tunde Global Systems and Technology
 
 This is a small Django-based e-commerce demo application used for showcasing products and a lightweight cart system.
